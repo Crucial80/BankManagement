@@ -27,5 +27,44 @@ namespace BankManagement.Core.Services
 
             return "Account Created";
         }
+
+
+
+        public string Deposit(int id, double amount)
+        {
+            var acc = accounts.FirstOrDefault(x => x.Id == id);
+
+            if (acc == null)
+                return "Account not found";
+
+            if (amount <= 0)
+                return "Invalid amount";
+
+            acc.Balance += amount;
+
+            return $"Deposited {amount}. New Balance: {acc.Balance}";
+        }
+
+
+
+
+        public string Withdraw(int id, double amount)
+        {
+            var acc = accounts.FirstOrDefault(x => x.Id == id);
+
+            if (acc == null)
+                return "Account not found";
+
+            if (amount <= 0)
+                return "Invalid amount";
+
+            if (acc.Balance < amount)
+                throw new Exception("Insufficient balance");
+
+            acc.Balance -= amount;
+
+            return $"Withdrawn {amount}. Remaining Balance: {acc.Balance}";
+
+        }
     }
 }

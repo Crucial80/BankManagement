@@ -12,10 +12,11 @@ namespace BankManagement.API.Controllers
     {
         private readonly IAccountService _service;
 
-        public AccountController()
+        public AccountController(IAccountService service)
         {
-            _service = new AccountService();
+            _service = service;
         }
+        
 
         [HttpGet]
         public List<Account> Get()
@@ -28,5 +29,29 @@ namespace BankManagement.API.Controllers
         {
             return _service.Create(dto.Name, dto.Balance);
         }
+
+
+        [HttpPost("deposit")]
+        public string Deposit(int id, double amount)
+        {
+            return _service.Deposit(id, amount);
+        }
+
+        [HttpPost("withdraw")]
+        public string Withdraw(int id, double amount)
+        {
+            try
+            {
+                return _service.Withdraw(id, amount);
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
     }
+
+
+
 }
