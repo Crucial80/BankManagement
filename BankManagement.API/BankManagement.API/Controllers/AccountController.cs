@@ -1,8 +1,10 @@
 ﻿using BankManagement.API.DTOs;
-using BankManagement.Core.Interfaces;
-
 using BankManagement.Core.Entities;
+using BankManagement.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace BankManagement.API.Controllers
 {
@@ -11,47 +13,62 @@ namespace BankManagement.API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _service;
+        private readonly AppDbContext _context;
 
-        public AccountController(IAccountService service)
+        public AccountController(IAccountService service, AppDbContext context)
         {
             _service = service;
+            _context = context;
         }
-        
 
         [HttpGet]
-        public List<Account> Get()
+        public IActionResult Get()
         {
-            return _service.GetAll();
+            var data = _service.GetAll();
+            return Ok(data);
+        }
+
+        [HttpGet("transactions/{accountId}")]
+        public IActionResult GetTransactions(int accountId)
+        {
+            var data = _context.Transactions
+                .FromSqlRaw("EXEC GetTransactions @AccountId",
+                    new SqlParameter("@AccountId", accountId))
+                .ToList();
+
+            return Ok(data);
         }
 
         [HttpPost]
-        public string Create(AccountDto dto)
+        public IActionResult Create(AccountDto dto)
         {
-            return _service.Create(dto.Name, dto.Balance);
+            var result = _service.Create(dto.Name, dto.Email, dto.Balance);
+            return Ok(result);
         }
 
-
         [HttpPost("deposit")]
-        public string Deposit(int id, double amount)
+        public IActionResult Deposit(int id, double amount)
         {
-            return _service.Deposit(id, amount);
+            var result = _service.Deposit(id, amount);
+            return Ok(result);
         }
 
         [HttpPost("withdraw")]
-        public string Withdraw(int id, double amount)
+        public IActionResult Withdraw(int id, double amount)
         {
             try
             {
-                return _service.Withdraw(id, amount);
+                var result = _service.Withdraw(id, amount);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                return BadRequest(ex.Message);
             }
         }
-
     }
 
-
-
+    internal class Transaction
+    {
+    }
 }
