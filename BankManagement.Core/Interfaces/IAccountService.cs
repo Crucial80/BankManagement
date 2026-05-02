@@ -13,6 +13,7 @@ namespace BankManagement.Core.Interfaces
         string Create(string name, double balance);
         string Deposit(int id, double amount);
         string Withdraw(int id, double amount);
+        string Create(string name, string email, double balance);
     }
 
 }
